@@ -1,0 +1,21 @@
+clear all; clc
+deg = pi/180;
+rE = [-1.796136509111975*10^-1,9.667949206859814*10^-1,-3.668681017942158*10^-5];
+vE = [-1.720038360888334*10^-2,-3.211186197806460*10^-3,7.927736735960840*10^-7];
+r1I = [3.515868886595499*10^-2,-3.162046390773074,4.493983111703389];
+v1I = [-2.317577766980901*10^-3,9.843360903693031*10^-3,-1.541856855538041*10^-2];
+r2I = [7.249472033259724, 14.61063037906177, 14.24274452216359];
+v2I = [-8.241709369476881*10^-3,-1.156219024581502*10^-2,-1.317135977481448*10^-2];
+mu = 1.327124e11;
+coe2I = coe_from_sv(r2I,v2I,mu);
+TA = coe2I(6);
+
+fprintf('\n\n Orbital elements for Borisov:')
+fprintf('\n Angular momentum (km^2/s) = %g', coe2I(1))
+fprintf('\n Eccentricity = %g', coe2I(2))
+fprintf('\n Inclination (deg) = %g', coe2I(4)/deg)
+fprintf('\n RA of ascending node (deg) = %g', coe2I(3)/deg)
+fprintf('\n Argument of perigee (deg) = %g', coe2I(5)/deg)
+fprintf('\n True anomaly (deg) = %g', TA/deg)
+fprintf('\n Semimajor axis (km) = %g', coe2I(7))
+fprintf('\n Periapse radius (km) = %g', coe2I(1)^2/mu/(1 + coe2I(2)))
