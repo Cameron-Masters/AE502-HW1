@@ -1,0 +1,70 @@
+clc; clear; close all;
+departure_1 = '1-Jan-2017';
+departure_2 = '31-Jul-2020';
+arrival_1 = '1-Jun-2019';
+arrival_2 = '31-Jan-2022';
+jd_departure_1 = juliandate(departure_1,'dd-mm-yyyy');
+jd_departure_2 = juliandate(departure_2,'dd-mm-yyyy');
+jd_arrival_1 = juliandate(arrival_1,'dd-mm-yyyy');
+jd_arrival_2 = juliandate(arrival_2,'dd-mm-yyyy');
+N_departure_dates = 25;
+N_arrival_dates = 25;
+departure_dates = linspace(jd_departure_1,jd_departure_2,N_departure_dates);
+arrival_dates = linspace(jd_arrival_1,jd_arrival_2,N_arrival_dates);
+DV_depart_short = zeros(N_arrival_dates,N_departure_dates);
+DV_depart_long = zeros(N_arrival_dates,N_departure_dates);
+DV_arrive_short = zeros(N_arrival_dates,N_departure_dates);
+DV_arrive_long = zeros(N_arrival_dates,N_departure_dates);
+body1 = 'Earth';
+body2 = 'Borisov';
+DV_depart = zeros(N_arrival_dates,N_departure_dates,2);
+DV_arrive = zeros(N_arrival_dates,N_departure_dates,2);
+DT = zeros(N_arrival_dates,N_departure_dates);
+
+for j = 1:N_departure_dates
+    for i = 1:N_arrival_dates
+        [DV_depart(i,j,1),DV_arrive(i,j,1)] = interplanetary_transfer(departure_dates(j),arrival_dates(i),body1,body2,1);
+        %[DV_depart(i,j,2),DV_arrive(i,j,2)] = interplanetary_transfer(departure_dates(j),arrival_dates(i),body1,body2,-1);
+        DT(i,j) = arrival_dates(i) - departure_dates(j);
+        num_complete = N_arrival_dates*(j-1) + i;
+        num_total = N_arrival_dates * N_departure_dates;
+        clc;
+        fprintf('Progress: %.1f%% \n',100*num_complete/num_total);
+    end
+end
+
+disp('CALCULATION COMPLETE');
+
+for j = 1:N_departure_dates
+    for i = 1:N_arrival_dates
+        if departure_dates(j) > arrival_dates(i)
+            DV_depart(i,j,:) = 10000 * ones(1,1,2);
+            DV_arrive(i,j,:) = 10000 * ones(1,1,2);
+        end
+    end
+end
+
+
+
+
+% plotdefaults(16,14,2);
+X = datenum(datetime(departure_dates,'convertfrom','juliandate'));
+Y = datenum(datetime(arrival_dates,'convertfrom','juliandate'));
+Z = min(DV_depart,[],3);
+V = linspace(0,20,100);
+figure(1)
+contour(X,Y,Z,V);
+hold on
+colormap(jet);
+hold off
+cb = colorbar;
+cb.Title.String ='Total $\Delta V$ [km/s]';
+cb.Title.Interpreter = 'latex';
+set(cb,'ticklabelinterpreter','latex');
+set(gca,'ytick',linspace(min(Y),max(Y),7))
+set(gca,'xtick',linspace(min(X),max(X),5))
+datetick('x',2,'keeplimits','keepticks')
+datetick('y',2,'keeplimits','keepticks')
+xlabel('Departure Date')
+ylabel('Arrival Date')
+title('Earth to Borisov Fly-By Porkchop Plot')
